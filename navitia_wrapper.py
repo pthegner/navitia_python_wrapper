@@ -29,7 +29,6 @@
 
 import requests
 import logging
-from simplejson.scanner import JSONDecodeError
 
 
 class Navitia(object):
@@ -55,7 +54,7 @@ class Navitia(object):
         json = {}
         try:
             json = response.json()
-        except JSONDecodeError:
+        except Exception:
             logging.getLogger(__name__).exception('impossible to load the response as json')
 
         return json, response.status_code
