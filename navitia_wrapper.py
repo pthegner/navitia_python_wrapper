@@ -51,6 +51,9 @@ class Navitia(object):
             #currently we reraise the previous exceptions
             raise Exception('call to navitia failed, query: {}'.format(query))
 
+        if response.status_code not in (200, 404):
+            raise NavitiaException('invalid call to navitia: {res} | {code}'
+                                   .format(response.text, response.status_code))
         json = {}
         try:
             json = response.json()
@@ -60,4 +63,8 @@ class Navitia(object):
         return json, response.status_code
 
     def instance(self, name):
-        return Navitia('{url}v1/coverage/{name}/'.format(name), self.token, self.timeout)
+        return Navitia('{url}v1/coverage/{name}/'.format(url=self.url, name=name), self.token)
+
+
+class NavitiaException(Exception):
+    pass
