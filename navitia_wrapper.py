@@ -31,21 +31,22 @@ import requests
 import logging
 
 
-class Navitia(object):
+class _NavitiaWrapper(object):
 
     def __init__(self, url, token=None):
         self.url = url
         self.token = token
         self.timeout = 1
 
-    def query(self, query, params=None):
+    def query(self, query, q=None):
         """
         query the API and return
         * the response as a python dict
         * the http status code
         """
+        logging.getLogger(__name__).debug('query {}'.format(self.url + query))
         try:
-            response = requests.get(self.url + query, auth=(self.token, None), timeout=self.timeout, params=params)
+            response = requests.get(self.url + query, auth=(self.token, None), timeout=self.timeout, params=q)
         except requests.exceptions.RequestException:
             logging.getLogger(__name__).exception('call to navitia failed')
             #currently we reraise the previous exceptions
@@ -53,7 +54,7 @@ class Navitia(object):
 
         if response.status_code not in (200, 404):
             raise NavitiaException('invalid call to navitia: {res} | {code}'
-                                   .format(response.text, response.status_code))
+                                   .format(res=response.text, code=response.status_code))
         json = {}
         try:
             json = response.json()
@@ -62,8 +63,33 @@ class Navitia(object):
 
         return json, response.status_code
 
+
+class Navitia(_NavitiaWrapper):
     def instance(self, name):
-        return Navitia('{url}v1/coverage/{name}/'.format(url=self.url, name=name), self.token)
+        return Instance('{url}v1/coverage/{name}/'.format(url=self.url, name=name), self.token)
+
+
+class Instance(_NavitiaWrapper):
+    def _collection(self, col, uri=None, q=None):
+        """
+        call navitia on one collection API
+        return the list of found object (not the whole navitia response)
+        """
+        url = col + '/'
+        if uri is not None:
+            url += uri + '/'
+
+        res, status = self.query(url, q)
+
+        if status == 200:
+            return res[col]
+        return []
+
+    def vehicle_journeys(self, uri=None, q=None):
+        return self._collection('vehicle_journeys', uri, q)
+
+    def stop_areas(self, uri=None, q=None):
+        return self._collection('stop_areas', uri, q)
 
 
 class NavitiaException(Exception):
