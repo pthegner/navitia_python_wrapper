@@ -29,7 +29,10 @@
 
 import requests
 import logging
+import datetime
 
+def as_time(str):
+     return datetime.datetime.strptime(str, '%H%M%S').time()
 
 class _NavitiaWrapper(object):
 
@@ -86,7 +89,14 @@ class Instance(_NavitiaWrapper):
         return []
 
     def vehicle_journeys(self, uri=None, q=None):
-        return self._collection('vehicle_journeys', uri, q)
+        vehicle_journeys = self._collection('vehicle_journeys', uri, q)
+        for vj in vehicle_journeys:
+            for stop_time in vj.get('stop_times', []):
+                if 'arrival_time' in stop_time:
+                    stop_time['arrival_time'] = as_time(stop_time['arrival_time'])
+                if 'departure_time' in stop_time:
+                    stop_time['departure_time'] = as_time(stop_time['departure_time'])
+        return vehicle_journeys
 
     def stop_areas(self, uri=None, q=None):
         return self._collection('stop_areas', uri, q)
