@@ -88,6 +88,29 @@ class Instance(_NavitiaWrapper):
             return res[col]
         return []
 
+    def _whole_collection(self, col):
+        url = col + '/'
+
+        res, next_call = self._collection_generator_update_result(url, col)
+
+        while len(res) > 0 :
+            yield res.pop(0)
+            if len(res) == 0 :
+                res, next_call = self._collection_generator_update_result(next_call, col)
+
+    def _collection_generator_update_result(self, next_call, collection):
+        if next_call :
+            appel_nav, status = self.query(next_call)
+            result = appel_nav[collection]
+            next_call_list = [link["href"] for link in appel_nav['links'] if link['type'] == "next"]
+            if next_call_list :
+                next_call = collection + "/" + next_call_list[0].split(collection)[1]
+            else :
+                next_call = None
+            return result, next_call
+        return [], None
+
+
     def vehicle_journeys(self, uri=None, q=None):
         vehicle_journeys = self._collection('vehicle_journeys', uri, q)
         for vj in vehicle_journeys:
@@ -101,6 +124,11 @@ class Instance(_NavitiaWrapper):
     def stop_areas(self, uri=None, q=None):
         return self._collection('stop_areas', uri, q)
 
+    def networks(self, uri=None, q=None):
+        return self._collection('networks', uri, q)
+
+    def all_networks(self):
+        return self._whole_collection('networks')
 
 class NavitiaException(Exception):
     pass
