@@ -76,7 +76,7 @@ class Instance(_NavitiaWrapper):
     def _collection(self, col, uri=None, q=None):
         """
         call navitia on one collection API
-        return the list of found object (not the whole navitia response)
+        return the list of found objects (not the whole navitia response)
         """
         url = col + '/'
         if uri is not None:
@@ -87,6 +87,34 @@ class Instance(_NavitiaWrapper):
         if status == 200:
             return res[col]
         return []
+
+    def _whole_collection(self, col, uri=None, q=None):
+        url = col + '/'
+
+        if uri is not None :
+            url += uri + '/'
+
+        res, next_call = self._collection_generator_update_result(url, col, q)
+
+
+        while len(res) > 0 :
+            yield res.pop(0)
+            if len(res) == 0 :
+                res, next_call = self._collection_generator_update_result(next_call, col, q)
+
+    def _collection_generator_update_result(self, next_call, collection, q):
+        if next_call :
+            navitia_response, status = self.query(next_call, q)
+            if status == 200 :
+                result = navitia_response[collection]
+                next_call_list = next((link["href"] for link in navitia_response['links'] if link['type'] == "next"), None)
+                if next_call_list :
+                    next_call = collection + "/" + next_call_list.split(collection)[1]
+                else :
+                    next_call = None
+                return result, next_call
+        return [], None
+
 
     def vehicle_journeys(self, uri=None, q=None):
         vehicle_journeys = self._collection('vehicle_journeys', uri, q)
@@ -101,6 +129,11 @@ class Instance(_NavitiaWrapper):
     def stop_areas(self, uri=None, q=None):
         return self._collection('stop_areas', uri, q)
 
+    def networks(self, uri=None, q=None):
+        return self._collection('networks', uri, q)
+
+    def all_networks(self, uri=None, q=None):
+        return self._whole_collection('networks', uri, q)
 
 class NavitiaException(Exception):
     pass
