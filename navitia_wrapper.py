@@ -96,21 +96,21 @@ class Instance(_NavitiaWrapper):
 
         res, next_call = self._collection_generator_update_result(url, col, q)
 
-
-        while len(res) > 0 :
+        while len(res) > 0:
             yield res.pop(0)
-            if len(res) == 0 :
+            if len(res) == 0:
                 res, next_call = self._collection_generator_update_result(next_call, col, q)
 
     def _collection_generator_update_result(self, next_call, collection, q):
-        if next_call :
+        if next_call:
             navitia_response, status = self.query(next_call, q)
-            if status == 200 :
-                result = navitia_response[collection]
+            if status == 200:
+                col = collection.split('/')[-1]
+                result = navitia_response[col]
                 next_call_list = next((link["href"] for link in navitia_response['links'] if link['type'] == "next"), None)
-                if next_call_list :
+                if next_call_list:
                     next_call = collection + "/" + next_call_list.split(collection)[1]
-                else :
+                else:
                     next_call = None
                 return result, next_call
         return [], None
