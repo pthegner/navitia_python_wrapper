@@ -55,7 +55,7 @@ class _NavitiaWrapper(object):
             #currently we reraise the previous exceptions
             raise Exception('call to navitia failed, query: {}'.format(query))
 
-        if response.status_code not in (200, 404):
+        if response.status_code not in (200, 404, 400):
             raise NavitiaException('invalid call to navitia: {res} | {code}'
                                    .format(res=response.text, code=response.status_code))
         json = {}
