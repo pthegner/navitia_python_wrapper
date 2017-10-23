@@ -30,18 +30,64 @@
 import requests
 import logging
 import datetime
+import cPickle as pickle
 
 def as_time(str):
      return datetime.datetime.strptime(str, '%H%M%S').time()
 
 class _NavitiaWrapper(object):
 
-    def __init__(self, url, token=None):
+    def __init__(self, url, token=None, cache=None):
         self.url = url
         self.token = token
         self.timeout = 1
+        self.cache = cache
+        self.query_timeout = 600
+        self.pubdate_timeout = 600
 
-    def query(self, query, q=None):
+    def set_cache(self, cache, query_timeout=600, pubdate_timeout=600):
+        self.cache = cache
+        self.query_timeout = query_timeout
+        self.pubdate_timeout = pubdate_timeout
+
+    def query(self, query, q=None, cache_timeout=None):
+        logger = logging.getLogger(__name__)
+        if not self.cache:
+            return self._query(query, q)
+        import redis
+        try:
+            key = 'navitiawrapper.{}.{}.{}.{}'.format(self.url, query, self.get_publication_date(), hash(frozenset(q.items())))
+            rv = self.cache.get(key)
+        except redis.ConnectionError:
+            rv = None
+            logger.exception('caching error')
+        if rv is not None:
+            logger.debug('cache hit')
+            return pickle.loads(rv)
+        logger.debug('cache miss')
+        rv = self._query(query, q)
+        try:
+            self.cache.set(key, pickle.dumps(rv), cache_timeout or self.query_timeout)
+        except redis.ConnectionError:
+            logger.exception('caching error')
+        return rv
+
+    def get_publication_date(self):
+        key = 'navitiawrapper.publication_date.{}'.format(self.url)
+        rv = self.cache.get(key)
+        if rv is not None:
+            return rv
+        response, status = self._query('status')
+        if status == 200:
+            pub_date = response['status']['publication_date']
+            self.cache.set(key, pub_date, self.pubdate_timeout)
+            return pub_date
+
+        return None
+
+
+
+    def _query(self, query, q=None):
         """
         query the API and return
         * the response as a python dict
