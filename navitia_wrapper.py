@@ -37,10 +37,10 @@ def as_time(str):
 
 class _NavitiaWrapper(object):
 
-    def __init__(self, url, token=None, cache=None, query_timeout=600, pubdate_timeout=600):
+    def __init__(self, url, token=None, timeout=1, cache=None, query_timeout=600, pubdate_timeout=600):
         self.url = url
         self.token = token
-        self.timeout = 1
+        self.timeout = timeout
         self.cache = self.query_timeout = self.pubdate_timeout = None
         self.set_cache(cache, query_timeout, pubdate_timeout)
 
