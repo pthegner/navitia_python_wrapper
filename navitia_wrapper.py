@@ -112,9 +112,22 @@ class _NavitiaWrapper(object):
         return json, response.status_code
 
 
-class Navitia(_NavitiaWrapper):
+class Navitia(object):
+    def __init__(self, url, token=None, timeout=1, cache=None, query_timeout=600, pubdate_timeout=600):
+        self.url = url
+        self.token = token
+        self.timeout = timeout
+        self.cache = cache
+        self.query_timeout = query_timeout
+        self.pubdate_timeout = pubdate_timeout
+
     def instance(self, name):
-        return Instance('{url}v1/coverage/{name}/'.format(url=self.url, name=name), self.token)
+        return Instance('{url}v1/coverage/{name}/'.format(url=self.url, name=name),
+                        token=self.token,
+                        timeout=self.timeout,
+                        cache=self.cache,
+                        query_timeout=self.query_timeout,
+                        pubdate_timeout=self.pubdate_timeout)
 
 
 class Instance(_NavitiaWrapper):
