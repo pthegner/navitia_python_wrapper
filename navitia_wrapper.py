@@ -187,6 +187,9 @@ class Instance(_NavitiaWrapper):
     def stop_areas(self, uri=None, q=None):
         return self._collection('stop_areas', uri, q)
 
+    def stop_points(self, uri=None, q=None):
+        return self._collection('stop_points', uri, q)
+
     def networks(self, uri=None, q=None):
         return self._collection('networks', uri, q)
 
