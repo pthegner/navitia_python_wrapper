@@ -92,7 +92,7 @@ class _NavitiaWrapper(object):
         * the response as a python dict
         * the http status code
         """
-        logging.getLogger(__name__).debug('query {}'.format(self.url + query))
+        logging.getLogger(__name__).debug('query {} - Params: {}'.format(self.url + query, q))
         try:
             response = requests.get(self.url + query, auth=(self.token, None), timeout=self.timeout, params=q)
         except requests.exceptions.RequestException:
