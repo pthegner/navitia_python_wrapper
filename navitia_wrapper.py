@@ -196,5 +196,8 @@ class Instance(_NavitiaWrapper):
     def all_networks(self, uri=None, q=None):
         return self._whole_collection('networks', uri, q)
 
+    def companies(self, uri=None, q=None):
+        return self._collection('companies', uri, q)
+
 class NavitiaException(Exception):
     pass
