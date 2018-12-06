@@ -182,6 +182,10 @@ class Instance(_NavitiaWrapper):
                     stop_time['arrival_time'] = as_time(stop_time['arrival_time'])
                 if 'departure_time' in stop_time:
                     stop_time['departure_time'] = as_time(stop_time['departure_time'])
+                if 'utc_arrival_time' in stop_time:
+                    stop_time['utc_arrival_time'] = as_time(stop_time['utc_arrival_time'])
+                if 'utc_departure_time' in stop_time:
+                    stop_time['utc_departure_time'] = as_time(stop_time['utc_departure_time'])
         return vehicle_journeys
 
     def stop_areas(self, uri=None, q=None):
