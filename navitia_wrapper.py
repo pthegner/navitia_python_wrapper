@@ -173,7 +173,6 @@ class Instance(_NavitiaWrapper):
                 return result, next_call
         return [], None
 
-
     def vehicle_journeys(self, uri=None, q=None):
         vehicle_journeys = self._collection('vehicle_journeys', uri, q)
         for vj in vehicle_journeys:
@@ -202,6 +201,10 @@ class Instance(_NavitiaWrapper):
 
     def companies(self, uri=None, q=None):
         return self._collection('companies', uri, q)
+
+    def physical_modes(self, uri=None, q=None):
+        return self._collection('physical_modes', uri, q)
+
 
 class NavitiaException(Exception):
     pass
