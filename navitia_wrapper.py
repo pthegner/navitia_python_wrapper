@@ -71,20 +71,25 @@ class _NavitiaWrapper(object):
             logger.exception('caching error')
         return rv
 
+    def _get_pubdate(self):
+        response, status = self._query('status')
+        if status == 200:
+            return response['status']['publication_date']
+        return None
+
     def get_publication_date(self):
+        if not self.cache:
+            return self._get_pubdate()
+
         key = 'navitiawrapper.publication_date.{}'.format(self.url)
         rv = self.cache.get(key)
         if rv is not None:
             return rv
-        response, status = self._query('status')
-        if status == 200:
-            pub_date = response['status']['publication_date']
+        pub_date = self._get_pubdate()
+        if pub_date:
             self.cache.set(key, pub_date, self.pubdate_timeout)
             return pub_date
-
         return None
-
-
 
     def _query(self, query, q=None):
         """
