@@ -97,17 +97,18 @@ class _NavitiaWrapper(object):
         * the response as a python dict
         * the http status code
         """
-        logging.getLogger(__name__).debug('query {} - Params: {}'.format(self.url + query, q))
+        detail_str = 'query: {} - params: {}'.format(self.url + query, q)
+        logging.getLogger(__name__).debug(detail_str)
         try:
             response = requests.get(self.url + query, auth=(self.token, None), timeout=self.timeout, params=q)
         except requests.exceptions.RequestException:
             logging.getLogger(__name__).exception('call to navitia failed')
             #currently we reraise the previous exceptions
-            raise Exception('call to navitia failed, query: {}'.format(query))
+            raise Exception('call to navitia failed, {}'.format(detail_str))
 
         if response.status_code not in (200, 404, 400):
-            raise NavitiaException('invalid call to navitia: {res} | {code}'
-                                   .format(res=response.text, code=response.status_code))
+            raise NavitiaException('invalid call to navitia ({det}): {res} | {code}'
+                                   .format(det=detail_str, res=response.text, code=response.status_code))
         json = {}
         try:
             json = response.json()
