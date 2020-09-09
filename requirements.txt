@@ -1,1 +1,2 @@
 requests==2.20.1
+pyrsistent==0.15.7
