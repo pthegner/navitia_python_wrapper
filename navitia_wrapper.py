@@ -55,7 +55,8 @@ class _NavitiaWrapper(object):
             return self._query(query, q)
         import redis
         try:
-            key = 'navitiawrapper.{}.{}.{}.{}'.format(self.url, query, self.get_publication_date(), hash(frozenset(q.items())))
+            q_key = hash(frozenset(q.items())) if q is not None else ""
+            key = 'navitiawrapper.{}.{}.{}.{}'.format(self.url, query, self.get_publication_date(), q_key)
             rv = self.cache.get(key)
         except redis.ConnectionError:
             rv = None
