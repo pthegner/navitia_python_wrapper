@@ -1,2 +1,2 @@
-requests==2.20.1
+requests==2.25.1
 pyrsistent==0.15.7
