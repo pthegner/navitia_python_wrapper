@@ -30,7 +30,7 @@
 import requests
 import logging
 import datetime
-import cPickle as pickle
+import pickle
 
 def as_time(str):
      return datetime.datetime.strptime(str, '%H%M%S').time()
