@@ -180,6 +180,17 @@ class Instance(_NavitiaWrapper):
                 return result, next_call
         return [], None
 
+    def _rawCollection(self, url, nodeName, q=None):
+        """
+        call navitia on one collection API
+        return the list of found objects (not the whole navitia response)
+        """
+        res, status = self.query(url, q)
+
+        if status == 200:
+            return res[nodeName]
+        return []
+
     def vehicle_journeys(self, uri=None, q=None):
         vehicle_journeys = self._collection('vehicle_journeys', uri, q)
         for vj in vehicle_journeys:
@@ -211,6 +222,9 @@ class Instance(_NavitiaWrapper):
 
     def physical_modes(self, uri=None, q=None):
         return self._collection('physical_modes', uri, q)
+
+    def endpoint(self, endpoint=None, nodeName=None, q=None):
+        return self._rawCollection(endpoint, nodeName, q)
 
 
 class NavitiaException(Exception):
