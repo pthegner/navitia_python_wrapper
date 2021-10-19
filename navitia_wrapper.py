@@ -31,9 +31,12 @@ import requests
 import logging
 import datetime
 import pickle
+import redis
+
 
 def as_time(str):
-     return datetime.datetime.strptime(str, '%H%M%S').time()
+    return datetime.datetime.strptime(str, '%H%M%S').time()
+
 
 class _NavitiaWrapper(object):
 
@@ -53,7 +56,6 @@ class _NavitiaWrapper(object):
         logger = logging.getLogger(__name__)
         if not self.cache:
             return self._query(query, q)
-        import redis
         try:
             q_key = hash(frozenset(q.items())) if q is not None else ""
             key = 'navitiawrapper.{}.{}.{}.{}'.format(self.url, query, self.get_publication_date(), q_key)
@@ -104,7 +106,7 @@ class _NavitiaWrapper(object):
             response = requests.get(self.url + query, auth=(self.token, None), timeout=self.timeout, params=q)
         except requests.exceptions.RequestException:
             logging.getLogger(__name__).exception('call to navitia failed')
-            #currently we reraise the previous exceptions
+            # currently we reraise the previous exceptions
             raise Exception('call to navitia failed, {}'.format(detail_str))
 
         if response.status_code not in (200, 404, 400):
@@ -152,7 +154,7 @@ class Instance(_NavitiaWrapper):
     def _whole_collection(self, col, uri=None, q=None):
         url = col + '/'
 
-        if uri is not None :
+        if uri is not None:
             url += uri + '/'
 
         res, next_call = self._collection_generator_update_result(url, col, q)
@@ -168,7 +170,8 @@ class Instance(_NavitiaWrapper):
             if status == 200:
                 col = collection.split('/')[-1]
                 result = navitia_response[col]
-                next_call_list = next((link["href"] for link in navitia_response['links'] if link['type'] == "next"), None)
+                next_call_list = next((link["href"] for link in navitia_response['links'] if link['type'] == "next"),
+                                      None)
                 if next_call_list:
                     next_call = collection + "/" + next_call_list.split(collection)[1]
                 else:

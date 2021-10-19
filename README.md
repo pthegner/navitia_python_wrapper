@@ -1,8 +1,8 @@
 # navitia_python_wrapper
 Python wrapper around the navitia API (api.navitia.io)
 
-##Usage
-```
+## Usage
+```python
 import navitia_wrapper
 
 url = "http://api.navitia.io/"
@@ -11,5 +11,5 @@ coverage = "fr-idf"
 
 nav = navitia_wrapper.Navitia(url=url, token=api_key).instance(coverage)
 
-print (nav.stop_areas("stop_area:OIF:SA:8768600")[0]['label'])
+print(nav.stop_areas("stop_area:OIF:SA:8768600")[0]['label'])
 ```
