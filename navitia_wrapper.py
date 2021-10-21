@@ -149,7 +149,7 @@ class Instance(_NavitiaWrapper):
         if uri is not None:
             url += uri + '/'
 
-        return self._raw_collection(url, col, q)
+        return self._raw_collection(url, q, col)
 
     def _whole_collection(self, col, uri=None, q=None):
         url = col + '/'
@@ -179,15 +179,19 @@ class Instance(_NavitiaWrapper):
                 return result, next_call
         return [], None
 
-    def _raw_collection(self, url, node_name, q=None):
+    def _raw_collection(self, url, q=None, node_name=None):
         """
         call navitia API and return data under node_name key
         """
         res, status = self.query(url, q)
 
-        if status == 200:
-            return res[node_name]
-        return []
+        if status != 200:
+            return []
+
+        if node_name is None:
+            return res
+
+        return res[node_name]
 
     def vehicle_journeys(self, uri=None, q=None):
         vehicle_journeys = self._collection('vehicle_journeys', uri, q)
@@ -221,8 +225,8 @@ class Instance(_NavitiaWrapper):
     def physical_modes(self, uri=None, q=None):
         return self._collection('physical_modes', uri, q)
 
-    def endpoint(self, endpoint=None, node_name=None, q=None):
-        return self._raw_collection(endpoint, node_name, q)
+    def full_path(self, full_path, q=None, node_name=None):
+        return self._raw_collection(full_path, q, node_name)
 
 
 class NavitiaException(Exception):
