@@ -1,6 +1,10 @@
 # navitia_python_wrapper
 Python wrapper around the navitia API (api.navitia.io)
 
+Python 3 is required.
+
+If you are using Python 2, please refer to v1.0.0
+
 ## Usage
 ```python
 import navitia_wrapper
