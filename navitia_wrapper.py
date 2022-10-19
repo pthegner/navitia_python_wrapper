@@ -40,7 +40,7 @@ def as_time(str):
 
 class _NavitiaWrapper(object):
 
-    def __init__(self, url, token=None, timeout=1, cache=None, query_timeout=600, pubdate_timeout=600, verify=False):
+    def __init__(self, url, token=None, timeout=1, cache=None, query_timeout=600, pubdate_timeout=600, verify=True):
         self.url = url
         self.token = token
         self.timeout = timeout
@@ -123,7 +123,7 @@ class _NavitiaWrapper(object):
 
 
 class Navitia(object):
-    def __init__(self, url, token=None, timeout=1, cache=None, query_timeout=600, pubdate_timeout=600, verify=False):
+    def __init__(self, url, token=None, timeout=1, cache=None, query_timeout=600, pubdate_timeout=600, verify=True):
         self.url = url
         self.token = token
         self.timeout = timeout
