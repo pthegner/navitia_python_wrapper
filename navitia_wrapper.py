@@ -40,10 +40,11 @@ def as_time(str):
 
 class _NavitiaWrapper(object):
 
-    def __init__(self, url, token=None, timeout=1, cache=None, query_timeout=600, pubdate_timeout=600):
+    def __init__(self, url, token=None, timeout=1, cache=None, query_timeout=600, pubdate_timeout=600, verify=False):
         self.url = url
         self.token = token
         self.timeout = timeout
+        self.verify = verify
         self.cache = self.query_timeout = self.pubdate_timeout = None
         self.set_cache(cache, query_timeout, pubdate_timeout)
 
@@ -103,7 +104,7 @@ class _NavitiaWrapper(object):
         detail_str = 'query: {} - params: {}'.format(self.url + query, q)
         logging.getLogger(__name__).debug(detail_str)
         try:
-            response = requests.get(self.url + query, auth=(self.token, None), timeout=self.timeout, params=q)
+            response = requests.get(self.url + query, auth=(self.token, None), timeout=self.timeout, params=q, verify=self.verify)
         except requests.exceptions.RequestException:
             logging.getLogger(__name__).exception('call to navitia failed')
             # currently we reraise the previous exceptions
@@ -122,13 +123,14 @@ class _NavitiaWrapper(object):
 
 
 class Navitia(object):
-    def __init__(self, url, token=None, timeout=1, cache=None, query_timeout=600, pubdate_timeout=600):
+    def __init__(self, url, token=None, timeout=1, cache=None, query_timeout=600, pubdate_timeout=600, verify=False):
         self.url = url
         self.token = token
         self.timeout = timeout
         self.cache = cache
         self.query_timeout = query_timeout
         self.pubdate_timeout = pubdate_timeout
+        self.verify = verify
 
     def instance(self, name):
         return Instance('{url}v1/coverage/{name}/'.format(url=self.url, name=name),
@@ -136,7 +138,8 @@ class Navitia(object):
                         timeout=self.timeout,
                         cache=self.cache,
                         query_timeout=self.query_timeout,
-                        pubdate_timeout=self.pubdate_timeout)
+                        pubdate_timeout=self.pubdate_timeout,
+                        verify=self.verify)
 
 
 class Instance(_NavitiaWrapper):
